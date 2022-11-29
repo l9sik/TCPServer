@@ -8,6 +8,7 @@
 #include <mutex>
 #include <map>
 #include "serverMessage.h"
+#include "messageHeaders.h"
 
 class fileHandle {
     std::mutex* getFileMutex(const std::string& path);
@@ -23,20 +24,10 @@ public:
     int readInt(const std::string &path);
     int getNumOfHandledMessages(const std::string &path, int ID_chat);
     serverMessage** getClientSendMessages(client* pClient, int *msgCount);
-};
+    int createChat(createChatHeader chatHeader, 
+        std::string chatName, int* clientsInChat, 
+        int size);
 
-struct clientInfo{
-    char name[20];
-    char surname[20];
-};
-
-struct clientChats{
-    int ID_chat;
-    int lastMsg;
-};
-
-struct chatInfo {
-    char name[20];
 };
 
 

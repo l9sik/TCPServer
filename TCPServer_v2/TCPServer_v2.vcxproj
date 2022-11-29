@@ -146,6 +146,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="appHelper.cpp" />
+    <ClCompile Include="CallBackGuard.cpp" />
     <ClCompile Include="client.cpp" />
     <ClCompile Include="fileHandle.cpp" />
     <ClCompile Include="genID.cpp" />
@@ -159,10 +160,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="appHelper.h" />
+    <ClInclude Include="CallBackGuard.h" />
     <ClInclude Include="client.h" />
     <ClInclude Include="fileHandle.h" />
     <ClInclude Include="genID.h" />
     <ClInclude Include="header.h" />
+    <ClInclude Include="messageHeaders.h" />
     <ClInclude Include="MsgConverter.h" />
     <ClInclude Include="msgGen.h" />
     <ClInclude Include="msgHandle.h" />

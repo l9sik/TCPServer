@@ -28,6 +28,7 @@ public:
 struct FileMessageHeader {
     char type;
     int sendID;
+    int msgID;
     time_t time;
     char emoji;
 };
@@ -36,6 +37,7 @@ struct SendMessageHeader {
     char type;
     int sendID;
     int chatID;
+    int msgID;
     time_t sendTime;
     char emoji;
 };

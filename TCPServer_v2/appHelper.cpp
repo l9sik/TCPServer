@@ -59,7 +59,7 @@ void appHelper::saveID(int choose, int id) {
 bool appHelper::isID(std::string directoryPath, int id) {
     bool result = true;
     std::string hash = std::to_string(id);
-    std::ifstream fout(directoryPath + "\\" + hash + "info.dat", std::ios::binary);
+    std::ifstream fout(directoryPath + "\\" + hash + "\\info.dat", std::ios::binary);
     if (!fout.is_open()) {
         result = false;
     }

@@ -15,11 +15,7 @@ public:
     static char* genIdentify(int id, bool isClient, int *size);
 };
 
-struct CallBackHeader{
-    char type;
-    int id;
-    bool state;
-};
+
 
 
 #endif //SERVERCLIENT_MSGGEN_H

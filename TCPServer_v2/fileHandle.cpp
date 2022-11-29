@@ -147,6 +147,9 @@ void fileHandle::createSocketFile(client *pClient) {
     std::mutex *fileMutex = getFileMutex(path);
     fileMutex->lock();
     _lock.unlock();
+    {
+        int a = 1;
+    }
     int size;
     int *chatIDs = (int *)getArrayFromFileImp(path, &size, sizeof(int));
     fileMutex->unlock();
@@ -170,35 +173,30 @@ void fileHandle::createSocketFile(client *pClient) {
 }
 
 void fileHandle::addToFile(const std::string& path, char* buffer, int size) {
-    _lock.lock();
+    std::unique_lock<std::mutex> handler_locker(_lock);
     std::unique_lock<std::mutex> file_locker(*(getFileMutex(path)));
-    _lock.unlock();
     addToFileImp(path, buffer, size);
 }
 char** fileHandle::getArrayFromFile(const std::string& path, int* bufsize, int tsize) {
-    _lock.lock();
+    std::unique_lock<std::mutex> handler_locker(_lock);
     std::unique_lock<std::mutex> file_locker(*(getFileMutex(path)));
-    _lock.unlock();
     return getArrayFromFileImp(path, bufsize, tsize);
 }
 
 void fileHandle::addMessageToChat(const std::string &path, char *buffer, int size) {
-    _lock.lock();
+    std::unique_lock<std::mutex> handler_locker(_lock);
     std::unique_lock<std::mutex> file_locker(*(getFileMutex(path)));
-    _lock.unlock();
     addMessageToChatImp(path, buffer, size);
 }
 int fileHandle::readInt(const std::string &path){
-    _lock.lock();
+    std::unique_lock<std::mutex> handler_locker(_lock);
     std::unique_lock<std::mutex> file_locker(*(getFileMutex(path)));
-    _lock.unlock();
     return readIntImp(path);
 }
 
 int fileHandle::getNumOfHandledMessages(const std::string &path, int ID) {
-    _lock.lock();
+    std::unique_lock<std::mutex> handler_locker(_lock);
     std::unique_lock<std::mutex> file_locker(*(getFileMutex(path)));
-    _lock.unlock();
     return getNumOfHandledMessagesImp(path, ID);
 }
 
@@ -206,7 +204,7 @@ void changeNumOfMessages(std::string path, int chatIndex, int msgCount){
     std::ofstream fout(path, std::ios::binary);
     if (fout.is_open()) {
         long chatpos = chatIndex * sizeof(clientChats);
-        fout.seekp(chatpos + sizeof(int));
+        fout.seekp(chatpos + (long)sizeof(int));
         fout.write((char *)&msgCount, sizeof(int));
     }
     fout.close();
@@ -252,4 +250,48 @@ serverMessage** fileHandle::getClientSendMessages(client* pClient, int *msgCount
     }
     return msgs;
 
+}
+
+void createFile(std::string path) {
+    std::ofstream fin(path);
+    fin.close();
+}
+
+void fillFile(std::string path, const char *buffer, int size) {
+    std::ofstream fout(path, std::ios_base::trunc);
+    fout.write(buffer, size);
+    fout.close();
+}
+
+void fillChatInfo(std::string path, const char* buffer, int size) {
+    std::ofstream fout(path, std::ios_base::trunc);
+    fout.write((char*)&size, sizeof(int));
+    fout.write(buffer, size);
+    fout.close();
+}
+
+using namespace std::filesystem;
+
+int fileHandle::createChat(createChatHeader header, std::string chatName, int* clientsInChat, int size) {
+    if (!exists(RESOURCE_DIRECTORY)) {
+        create_directory(RESOURCE_DIRECTORY);
+    }
+    if (!exists(CHAT_DIRECTORY)) {
+        create_directory(CHAT_DIRECTORY);
+    }
+    int ChatID = genID(CHAT_ID_PATH);
+    std::string chatPath = CHAT_DIRECTORY;
+    chatPath += std::to_string(ChatID);
+    create_directory(chatPath);
+    fillChatInfo(chatPath + INFO_FILE, chatName.c_str(), chatName.length());
+    int initNumOfMessages = 0;
+    fillFile(chatPath + MSGS_FILE, (char*)&initNumOfMessages, sizeof(int));
+    chatClients* clients = new chatClients[size];
+    ZeroMemory(clients, sizeof(chatClients) * size);
+    for (int i = 0; i < size; i++) {
+        clients->ID_chat = clientsInChat[i];
+    }
+    fillFile(chatPath + CLIENTS_FILE, (char*)&clients, size);
+    createFile(chatPath + MSGS_ID_FILE);
+    return ChatID;
 }

@@ -5,6 +5,7 @@
 #include "MsgConverter.h"
 #include "appHelper.h"
 #include "msgHandle.h"
+#include "genID.h"
 
 MsgConverter::MsgConverter(char* msg, int size) {
     this->msg = msg;
@@ -15,7 +16,7 @@ MsgConverter::MsgConverter(char* msg, int size) {
 
 MsgConverter::~MsgConverter(){
     if (buff != NULL){
-        delete buff;
+        delete[] buff;
     }
 }
 
@@ -33,6 +34,7 @@ void MsgConverter::textMessage(){
     //sender id
     appHelper::intToCharArr(id, &buff[pos]);
     pos += sizeof(int);
+    pos += sizeof(int);
     //current time
     appHelper::typeToCharArr((char *)&currentTime, sizeof(time_t), &buff[pos]);
     pos += sizeof(time_t); 
@@ -49,6 +51,8 @@ void MsgConverter::sendTextMessage(int chatID){
     int pos = sizeof(char);
     header.sendID = appHelper::charArrToInt(&msg[pos]);
     header.chatID = chatID;
+    pos += sizeof(int);
+    appHelper::typeToCharArr(&msg[pos], sizeof(int), (char*)&header.msgID);
     pos += sizeof(int);
     appHelper::typeToCharArr(&msg[pos], sizeof(time_t), (char*)&header.sendTime);
     //appHelper::typeToCharArr(&msg[pos], sizeof(time_t), (char*)&header.time);

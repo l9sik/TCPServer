@@ -215,7 +215,8 @@ int server::startServer() {
     SOCKET ListenSocket = INVALID_SOCKET;
     SOCKET ClientSocket = INVALID_SOCKET;
 
-    struct addrinfo *result = NULL;
+    
+    addrinfo *result = NULL;
     struct addrinfo hints;
 
     sockaddr_in address;
